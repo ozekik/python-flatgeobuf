@@ -16,13 +16,13 @@ def load(file: BufferedIOBase, *, bbox: Rect | None = None) -> FeatureCollection
     return FeatureCollection(features)
 
 
-def http_load(url: str, *, bbox: Rect | None = None) -> FeatureCollection:
+def load_http(url: str, *, bbox: Rect | None = None) -> FeatureCollection:
     reader = HTTPReader(url, bbox=bbox)
     features = list(reader)
     return FeatureCollection(features)
 
 
-async def http_load_async(url: str, *, bbox: Rect | None = None) -> FeatureCollection:
+async def load_http_async(url: str, *, bbox: Rect | None = None) -> FeatureCollection:
     reader = AsyncHTTPReader(url, bbox=bbox)
     features = [feature async for feature in reader]
     return FeatureCollection(features)

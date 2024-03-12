@@ -15,8 +15,8 @@ from flatgeobuf.geojson.reader import (
     HTTPReader,  # noqa: F401
     Reader,  # noqa: F401
     load,  # noqa: F401
-    http_load,  # noqa: F401
-    http_load_async,  # noqa: F401
+    load_http,  # noqa: F401
+    load_http_async,  # noqa: F401
 )
 from flatgeobuf.packedrtree import Rect
 

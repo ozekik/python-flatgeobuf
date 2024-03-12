@@ -6,8 +6,8 @@ from flatgeobuf.geojson.reader import (
     AsyncHTTPReader,
     HTTPReader,
     Reader,
-    http_load,
-    http_load_async,
+    load_http,
+    load_http_async,
     load,
 )
 
@@ -19,13 +19,13 @@ class TestAsyncReader(IsolatedAsyncioTestCase):
         with open("tests/data/countries.geojson", "r") as f:
             self.COUNTRIES_GEOJSON = geojson.load(f)
 
-    async def test_http_load_async(self):
-        result = await http_load_async(FGB_URL)
+    async def test_load_http_async(self):
+        result = await load_http_async(FGB_URL)
         self.assertDictEqual(result, self.COUNTRIES_GEOJSON)
 
-    async def test_http_load_async_bbox(self):
+    async def test_load_http_async_bbox(self):
         bbox = (-26.5699, 63.1191, -12.1087, 67.0137)
-        result = await http_load_async(FGB_URL, bbox=bbox)
+        result = await load_http_async(FGB_URL, bbox=bbox)
         ids = [feat.properties["id"] for feat in result.features]
         try:
             import shapely  # noqa: F401
@@ -61,13 +61,13 @@ class TestReader(TestCase):
         with open("tests/data/countries.geojson", "r") as f:
             self.COUNTRIES_GEOJSON = geojson.load(f)
 
-    def test_http_load(self):
-        result = http_load(FGB_URL)
+    def test_load_http(self):
+        result = load_http(FGB_URL)
         self.assertDictEqual(result, self.COUNTRIES_GEOJSON)
 
-    def test_http_load_bbox(self):
+    def test_load_http_bbox(self):
         bbox = (-26.5699, 63.1191, -12.1087, 67.0137)
-        result = http_load(FGB_URL, bbox=bbox)
+        result = load_http(FGB_URL, bbox=bbox)
         ids = [feat.properties["id"] for feat in result.features]
         try:
             import shapely  # noqa: F401
