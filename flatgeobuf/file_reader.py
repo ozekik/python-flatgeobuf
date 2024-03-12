@@ -106,7 +106,7 @@ class FileReader:
 
         buffered_client = self.header_client
 
-        async def read_node(offset_into_tree: int, size: int) -> bytes:
+        def read_node(offset_into_tree: int, size: int) -> bytes:
             min_req_length = 0
             return buffered_client.get_range(
                 length_before_tree + offset_into_tree,

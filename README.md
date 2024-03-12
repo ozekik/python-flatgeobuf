@@ -33,34 +33,16 @@ print(data)
 # { "type": "FeatureCollection", "features": [...] }
 ```
 
-#### `load_http()`
+#### `load_http()` (async)
 
 ```python
 import flatgeobuf as fgb
 
 # All features
-data = fgb.load_http("https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb")
+data = await fgb.load_http("https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb")
 
 # ...or features within a bounding box
-data = fgb.load_http(
-  "https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb",
-  bbox=(-26.5699, 63.1191, -12.1087, 67.0137)
-)
-
-print(data)
-# { "type": "FeatureCollection", "features": [...] }
-```
-
-#### `load_http_async()`
-
-```python
-import flatgeobuf as fgb
-
-# All features
-data = await fgb.load_http_async("https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb")
-
-# ...or features within a bounding box
-data = await fgb.load_http_async(
+data = await fgb.load_http(
   "https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb",
   bbox=(-26.5699, 63.1191, -12.1087, 67.0137)
 )
@@ -91,40 +73,19 @@ with open("example.fgb", "rb") as f:
         # { "type": "Feature", "properties": {...}, "geometry": {...} }
 ```
 
-#### `HTTPReader`
+#### `HTTPReader` (async)
 
 ```python
 import flatgeobuf as fgb
 
 # All features
 reader = fgb.HTTPReader("https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb")
-  for feature in reader:
-      print(feature)
-      # { "type": "Feature", "properties": {...}, "geometry": {...} }
-
-# ...or features within a bounding box
-reader = fgb.HTTPReader(
-    "https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb",
-    bbox=(-26.5699, 63.1191, -12.1087, 67.0137)
-)
-for feature in reader:
-    print(feature)
-    # { "type": "Feature", "properties": {...}, "geometry": {...} }
-```
-
-#### `AsyncHTTPReader`
-
-```python
-import flatgeobuf as fgb
-
-# All features
-reader = fgb.AsyncHTTPReader("https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb")
   async for feature in reader:
       print(feature)
       # { "type": "Feature", "properties": {...}, "geometry": {...} }
 
 # ...or features within a bounding box
-reader = fgb.AsyncHTTPReader(
+reader = fgb.HTTPReader(
     "https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb",
     bbox=(-26.5699, 63.1191, -12.1087, 67.0137)
 )

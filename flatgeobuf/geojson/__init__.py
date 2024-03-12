@@ -12,12 +12,10 @@ from flatgeobuf.geojson.featurecollection import deserialize_http as fc_deserial
 from flatgeobuf.geojson.featurecollection import (
     deserialize_stream as fc_deserialize_stream,
 )
-from flatgeobuf.geojson.reader import AsyncHTTPReader  # noqa: F401
 from flatgeobuf.geojson.reader import HTTPReader  # noqa: F401
 from flatgeobuf.geojson.reader import Reader  # noqa: F401
 from flatgeobuf.geojson.reader import load  # noqa: F401
 from flatgeobuf.geojson.reader import load_http  # noqa: F401
-from flatgeobuf.geojson.reader import load_http_async  # noqa: F401
 from flatgeobuf.packedrtree import Rect
 
 
