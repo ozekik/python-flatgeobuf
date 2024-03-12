@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from io import BufferedIOBase
 from logging import getLogger
 from typing import Any, AsyncGenerator, Generator, List, Tuple
@@ -13,9 +12,9 @@ from flatgeobuf.header_meta import HeaderMeta, from_byte_buffer
 from flatgeobuf.packedrtree import (
     DEFAULT_NODE_SIZE,
     NODE_ITEM_BYTE_LEN,
+    PackedRTree,
     Rect,
     calc_tree_size,
-    stream_search,
 )
 
 logger = getLogger(__name__)
@@ -119,23 +118,13 @@ class FileReader:
         batches: List[List[Tuple[int, int]]] = []
         current_batch: List[Tuple[int, int]] = []
 
-        loop = asyncio.new_event_loop()
-
-        search_results_stream = stream_search(
+        search_results = PackedRTree(
             self.header.features_count,
             self.header.index_node_size,
             rect,
-            read_node,
-        )
+        ).stream_search(read_node)
 
-        while True:
-            try:
-                search_result = loop.run_until_complete(
-                    search_results_stream.__anext__()
-                )
-            except StopAsyncIteration:
-                break
-
+        for search_result in search_results:
             feature_offset, _, feature_length = search_result
             if not feature_length:
                 logger.info("final feature")

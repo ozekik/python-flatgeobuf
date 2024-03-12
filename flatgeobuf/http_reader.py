@@ -11,9 +11,9 @@ from flatgeobuf.http_range_client import BufferedHttpRangeClient
 from flatgeobuf.packedrtree import (
     DEFAULT_NODE_SIZE,
     NODE_ITEM_BYTE_LEN,
+    PackedRTree,
     Rect,
     calc_tree_size,
-    stream_search,
 )
 
 logger = getLogger(__name__)
@@ -119,12 +119,11 @@ class HttpReader:
         batches: List[List[Tuple[int, int]]] = []
         current_batch: List[Tuple[int, int]] = []
 
-        async for search_result in stream_search(
+        async for search_result in PackedRTree(
             self.header.features_count,
             self.header.index_node_size,
             rect,
-            read_node,
-        ):
+        ).stream_search_async(read_node):
             feature_offset, _, feature_length = search_result
             if not feature_length:
                 logger.info("final feature")
