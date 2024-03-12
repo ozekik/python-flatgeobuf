@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import math
 from logging import getLogger
-from typing import Annotated, AsyncGenerator, List, Tuple
+from typing import Annotated, AsyncGenerator, List, Tuple, Union
 
 from .config import Config
 
@@ -10,8 +12,8 @@ NODE_ITEM_BYTE_LEN: int = 8 * 4 + 8
 
 DEFAULT_NODE_SIZE = 16
 
-Rect = Tuple[float, float, float, float] | Annotated[list[float], 4]
-SearchResult = Tuple[int, int, int | None]
+Rect = Union[Tuple[float, float, float, float], Annotated[list[float], 4]]
+SearchResult = Tuple[int, int, Union[int, None]]
 
 
 def calc_tree_size(num_items: int, node_size: int) -> int:

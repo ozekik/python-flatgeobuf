@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
-from typing import Callable, List, Optional, Self, TypedDict, Union, cast
+from typing import Callable, List, Optional, TypedDict, Union, cast
 
 from flatgeobuf.FlatGeobuf.Geometry import Geometry
 from flatgeobuf.FlatGeobuf.GeometryType import GeometryType
@@ -9,7 +11,7 @@ class ParsedGeometry(TypedDict, total=False):
     xy: List[float] | None
     z: List[float] | None
     ends: List[int] | None
-    parts: List[Self] | None
+    parts: List["ParsedGeometry"] | None
     type: GeometryType | None
 
 
