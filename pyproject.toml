@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "flatgeobuf"
+version = "0.1.0"
+description = "Python library for FlatGeobuf"
+license = "MIT"
+homepage = "https://github.com/ozekik/python-flatgeobuf"
+authors = ["Kentaro Ozeki <kentaro.ozeki+dev@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "flatgeobuf" }, { include = "NOTICE.txt" }]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+flatbuffers = "^24.3.7"
+geojson = "^3.1.0"
+numpy = "^1.26.4"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.1.1"
+coverage = { extras = ["toml"], version = "^7.4.3" }
+pytest-cov = "^4.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
