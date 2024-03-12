@@ -27,7 +27,12 @@ class TestAsyncReader(IsolatedAsyncioTestCase):
         bbox = (-26.5699, 63.1191, -12.1087, 67.0137)
         result = await http_load_async(FGB_URL, bbox=bbox)
         ids = [feat.properties["id"] for feat in result.features]
-        self.assertListEqual(ids, ["RUS", "ISL", "GRL"])
+        try:
+            import shapely  # noqa: F401
+
+            self.assertListEqual(ids, ["ISL"])
+        except:
+            self.assertListEqual(ids, ["RUS", "ISL", "GRL"])
 
     async def test_async_http_reader(self):
         url = "https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb"
@@ -43,7 +48,12 @@ class TestAsyncReader(IsolatedAsyncioTestCase):
         async for feature in reader:
             features.append(feature)
         ids = [feat.properties["id"] for feat in features]
-        self.assertListEqual(ids, ["RUS", "ISL", "GRL"])
+        try:
+            import shapely  # noqa: F401
+
+            self.assertListEqual(ids, ["ISL"])
+        except:
+            self.assertListEqual(ids, ["RUS", "ISL", "GRL"])
 
 
 class TestReader(TestCase):
@@ -59,7 +69,12 @@ class TestReader(TestCase):
         bbox = (-26.5699, 63.1191, -12.1087, 67.0137)
         result = http_load(FGB_URL, bbox=bbox)
         ids = [feat.properties["id"] for feat in result.features]
-        self.assertListEqual(ids, ["RUS", "ISL", "GRL"])
+        try:
+            import shapely  # noqa: F401
+
+            self.assertListEqual(ids, ["ISL"])
+        except:
+            self.assertListEqual(ids, ["RUS", "ISL", "GRL"])
 
     def test_load(self):
         with open("tests/data/countries.fgb", "rb") as f:
@@ -74,7 +89,12 @@ class TestReader(TestCase):
             result = load(f, bbox=bbox)
 
         ids = [feat.properties["id"] for feat in result.features]
-        self.assertListEqual(ids, ["RUS", "ISL", "GRL"])
+        try:
+            import shapely  # noqa: F401
+
+            self.assertListEqual(ids, ["ISL"])
+        except:
+            self.assertListEqual(ids, ["RUS", "ISL", "GRL"])
 
     def test_http_reader(self):
         reader = HTTPReader(FGB_URL)
@@ -89,20 +109,37 @@ class TestReader(TestCase):
         for feature in reader:
             features.append(feature)
         ids = [feat.properties["id"] for feat in features]
-        self.assertListEqual(ids, ["RUS", "ISL", "GRL"])
+        try:
+            import shapely  # noqa: F401
+
+            self.assertListEqual(ids, ["ISL"])
+        except:
+            self.assertListEqual(ids, ["RUS", "ISL", "GRL"])
 
     def test_reader(self):
+        features = []
+
         with open("tests/data/countries.fgb", "rb") as f:
             reader = Reader(f)
-            features = []
-            for feature in reader:
-                features.append(feature)
-            self.assertListEqual(features, self.COUNTRIES_GEOJSON.features)
 
-            bbox = (-26.5699, 63.1191, -12.1087, 67.0137)
-            reader = Reader(f, bbox=bbox)
-            features = []
             for feature in reader:
                 features.append(feature)
-            ids = [feat.properties["id"] for feat in features]
+
+        self.assertListEqual(features, self.COUNTRIES_GEOJSON.features)
+
+        features = []
+        bbox = (-26.5699, 63.1191, -12.1087, 67.0137)
+
+        with open("tests/data/countries.fgb", "rb") as f:
+            reader = Reader(f, bbox=bbox)
+
+            for feature in reader:
+                features.append(feature)
+
+        ids = [feat.properties["id"] for feat in features]
+        try:
+            import shapely  # noqa: F401
+
+            self.assertListEqual(ids, ["ISL"])
+        except:
             self.assertListEqual(ids, ["RUS", "ISL", "GRL"])

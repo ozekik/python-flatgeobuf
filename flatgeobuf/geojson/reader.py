@@ -58,7 +58,7 @@ class AsyncHTTPReader:
         self.header_meta_fn = header_meta_fn
 
     async def __aiter__(self):
-        async for feature in await deserialize_http(self.url, self.rect):
+        async for feature in deserialize_http(self.url, self.rect):
             yield feature
 
 
@@ -76,9 +76,7 @@ class HTTPReader:
 
     def __iter__(self):
         loop = asyncio.new_event_loop()
-        task = loop.create_task(deserialize_http(self.url, self.rect))
-        loop.run_until_complete(task)
-        features = task.result()
+        features = deserialize_http(self.url, self.rect)
         while True:
             try:
                 yield loop.run_until_complete(features.__anext__())

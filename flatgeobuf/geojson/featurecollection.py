@@ -6,6 +6,7 @@ from typing import AsyncGenerator, Generator
 
 from geojson import Feature
 
+from flatgeobuf.bbox_filter import BBoxFilter
 from flatgeobuf.generic import HeaderMetaFn
 from flatgeobuf.generic.featurecollection import deserialize as generic_deserialize
 from flatgeobuf.generic.featurecollection import (
@@ -26,7 +27,14 @@ def deserialize(
 ) -> Generator[Feature, None, None]:
     """Deserialize a FlatGeobuf byte stream to a GeoJSON FeatureCollection."""
 
-    return generic_deserialize(data, rect, from_feature, header_meta_fn)
+    if rect:
+        bbox_filter = BBoxFilter(rect)
+        for feature in generic_deserialize(data, rect, from_feature, header_meta_fn):
+            if bbox_filter.has_intersection(feature):
+                yield feature
+    else:
+        for feature in generic_deserialize(data, rect, from_feature, header_meta_fn):
+            yield feature
 
 
 async def deserialize_stream(
@@ -43,4 +51,15 @@ async def deserialize_http(
 ) -> AsyncGenerator[Feature, None]:
     """Deserialize a FlatGeobuf HTTP resource to a GeoJSON FeatureCollection."""
 
-    return generic_deserialize_http(url, rect, from_feature, header_meta_fn)
+    if rect:
+        bbox_filter = BBoxFilter(rect)
+        async for feature in generic_deserialize_http(
+            url, rect, from_feature, header_meta_fn
+        ):
+            if bbox_filter.has_intersection(feature):
+                yield feature
+    else:
+        async for feature in generic_deserialize_http(
+            url, rect, from_feature, header_meta_fn
+        ):
+            yield feature
