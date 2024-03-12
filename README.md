@@ -33,7 +33,7 @@ print(data)
 # { "type": "FeatureCollection", "features": [...] }
 ```
 
-#### `load_http()` (async)
+#### `load_http()` (Async)
 
 ```python
 import flatgeobuf as fgb
@@ -73,7 +73,7 @@ with open("example.fgb", "rb") as f:
         # { "type": "Feature", "properties": {...}, "geometry": {...} }
 ```
 
-#### `HTTPReader` (async)
+#### `HTTPReader` (Async)
 
 ```python
 import flatgeobuf as fgb
