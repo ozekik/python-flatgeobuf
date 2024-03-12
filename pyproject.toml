@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flatgeobuf"
-version = "0.1.1"
+version = "0.2.0"
 description = "Python library for FlatGeobuf"
 license = "MIT"
 homepage = "https://github.com/ozekik/python-flatgeobuf"
