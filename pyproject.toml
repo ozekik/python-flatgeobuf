@@ -13,7 +13,7 @@ python = "^3.9"
 flatbuffers = "^24.3.7"
 geojson = "^3.1.0"
 numpy = "^1.26.1"
-shapely = ">=1.8.2"     # micropip supports 1.8.2 only
+shapely = ">=1.8.2"     # micropip supports only 1.8.2 in some older jupyterlite versions
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.1.1"
