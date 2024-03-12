@@ -1,5 +1,8 @@
 # python-flatgeobuf
 
+[![PyPI](https://img.shields.io/pypi/v/flatgeobuf.svg)](https://pypi.org/project/flatgeobuf/)
+[![build](https://github.com/ozekik/python-flatgeobuf/actions/workflows/ci.yaml/badge.svg)](https://github.com/ozekik/python-flatgeobuf/actions/workflows/ci.yaml)
+
 A Python library for [FlatGeobuf](https://flatgeobuf.org/).
 Ported from the official [TypeScript implementation](https://github.com/flatgeobuf/flatgeobuf/tree/master/src/ts).
 
