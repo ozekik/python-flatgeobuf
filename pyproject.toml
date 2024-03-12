@@ -12,7 +12,7 @@ packages = [{ include = "flatgeobuf" }, { include = "NOTICE.txt" }]
 python = "^3.9"
 flatbuffers = "^24.3.7"
 geojson = "^3.1.0"
-numpy = "^1.26.4"
+numpy = "^1.26.1"
 shapely = ">=1.8.2"     # micropip supports 1.8.2 only
 
 [tool.poetry.group.test.dependencies]
