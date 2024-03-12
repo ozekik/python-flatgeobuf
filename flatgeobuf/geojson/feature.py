@@ -12,10 +12,16 @@ class IGeoJsonFeature(BaseFeature, GeoJsonFeature):
 
 def from_feature(feature: Feature, header: HeaderMeta) -> IGeoJsonFeature:
     columns = header.columns
-    geometry = from_geometry(feature.Geometry(), header.geometry_type)
-    geo_json_feature = GeoJsonFeature(
+    _geometry = feature.Geometry()
+
+    if not _geometry:
+        geometry = None
+    else:
+        geometry = from_geometry(_geometry, header.geometry_type)
+
+    geojson_feature = GeoJsonFeature(
         type="Feature",
         geometry=geometry,
         properties=parse_properties(feature, columns),
     )
-    return geo_json_feature
+    return geojson_feature
