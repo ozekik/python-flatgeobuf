@@ -5,7 +5,11 @@ from io import BufferedIOBase
 from geojson import FeatureCollection
 
 from flatgeobuf.generic import HeaderMetaFn
-from flatgeobuf.geojson.featurecollection import deserialize, deserialize_http
+from flatgeobuf.geojson.featurecollection import (
+    deserialize,
+    deserialize_http,
+    deserialize_http_async,
+)
 from flatgeobuf.packedrtree import Rect
 
 
@@ -14,9 +18,16 @@ def load(file: BufferedIOBase, *, bbox: Rect | None = None) -> FeatureCollection
     features = list(reader)
     return FeatureCollection(features)
 
-async def load_http(url: str, *, bbox: Rect | None = None) -> FeatureCollection:
+
+async def load_http_async(url: str, *, bbox: Rect | None = None) -> FeatureCollection:
     reader = HTTPReader(url, bbox=bbox)
     features = [feature async for feature in reader]
+    return FeatureCollection(features)
+
+
+def load_http(url: str, *, bbox: Rect | None = None) -> FeatureCollection:
+    reader = HTTPReader(url, bbox=bbox)
+    features = [feature for feature in reader]
     return FeatureCollection(features)
 
 
@@ -50,5 +61,9 @@ class HTTPReader:
         self.header_meta_fn = header_meta_fn
 
     async def __aiter__(self):
-        async for feature in deserialize_http(self.url, self.rect):
+        async for feature in deserialize_http_async(self.url, self.rect):
+            yield feature
+
+    def __iter__(self):
+        for feature in deserialize_http(self.url, self.rect):
             yield feature

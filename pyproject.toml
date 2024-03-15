@@ -20,6 +20,24 @@ pytest = "^8.1.1"
 coverage = { extras = ["toml"], version = "^7.4.3" }
 pytest-cov = "^4.1.0"
 
+[tool.poetry.group.dev.dependencies]
+unasyncd = "^0.7.1"
+
+[tool.unasyncd]
+files = { "flatgeobuf/async_http_reader.py" = "flatgeobuf/http_reader.py" }
+# exclude = ["Something", "SomethingElse.within"]
+# per_file_exclude = { "foo.py" = ["special_foo"] }
+# per_file_add_replacements = { "async_thing.py" = { "AsyncClass" = "SyncClass" } }
+# transform_docstrings = true
+remove_unused_imports = true
+# no_cache = false
+# force_regen = false
+
+[tool.unasyncd.add_replacements]
+"get_range_async" = "get_range"
+"stream_search_async" = "stream_search"
+"AsyncHTTPReader" = "HTTPReader"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

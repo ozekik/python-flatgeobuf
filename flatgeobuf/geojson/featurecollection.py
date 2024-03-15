@@ -12,6 +12,9 @@ from flatgeobuf.generic.featurecollection import deserialize as generic_deserial
 from flatgeobuf.generic.featurecollection import (
     deserialize_http as generic_deserialize_http,
 )
+from flatgeobuf.generic.featurecollection import (
+    deserialize_http_async as generic_deserialize_http_async,
+)
 
 # from flatgeobuf.generic.featurecollection import (
 #     deserialize_stream as generic_deserialize_stream,
@@ -46,20 +49,39 @@ async def deserialize_stream(
     # return generic_deserialize_stream(stream, from_feature, header_meta_fn)
 
 
-async def deserialize_http(
+async def deserialize_http_async(
     url: str, rect: Rect | None = None, header_meta_fn: HeaderMetaFn | None = None
 ) -> AsyncGenerator[Feature, None]:
     """Deserialize a FlatGeobuf HTTP resource to a GeoJSON FeatureCollection."""
 
     if rect:
         bbox_filter = BBoxFilter(rect)
-        async for feature in generic_deserialize_http(
+        async for feature in generic_deserialize_http_async(
             url, rect, from_feature, header_meta_fn
         ):
             if bbox_filter.has_intersection(feature):
                 yield feature
     else:
-        async for feature in generic_deserialize_http(
+        async for feature in generic_deserialize_http_async(
+            url, rect, from_feature, header_meta_fn
+        ):
+            yield feature
+
+
+def deserialize_http(
+    url: str, rect: Rect | None = None, header_meta_fn: HeaderMetaFn | None = None
+) -> Generator[Feature, None, None]:
+    """Deserialize a FlatGeobuf HTTP resource to a GeoJSON FeatureCollection."""
+
+    if rect:
+        bbox_filter = BBoxFilter(rect)
+        for feature in generic_deserialize_http(
+            url, rect, from_feature, header_meta_fn
+        ):
+            if bbox_filter.has_intersection(feature):
+                yield feature
+    else:
+        for feature in generic_deserialize_http(
             url, rect, from_feature, header_meta_fn
         ):
             yield feature

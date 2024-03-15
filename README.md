@@ -24,11 +24,12 @@ pip install flatgeobuf
 
 - [Loaders](#loaders)
     - [`load()`](#load)
-    - [`load_http()` (Async)](#load_http-async)
+    - [`load_http()`](#load_http)
+    - [`load_http_async()`](#load_http_async)
 - [Readers](#readers)
     - [`Reader`](#reader)
+    - [`HTTPReader`](#httpreader)
     - [`HTTPReader` (Async)](#httpreader-async)
-- [Running on JuptyerLite](#running-on-juptyerlite)
 
 ### Loaders
 
@@ -49,16 +50,36 @@ print(data)
 # { "type": "FeatureCollection", "features": [...] }
 ```
 
-#### `load_http()` (Async)
+#### `load_http()`
 
 ```python
 import flatgeobuf as fgb
 
 # All features
-data = await fgb.load_http("https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb")
+data = fgb.load_http("https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb")
 
 # ...or features within a bounding box
-data = await fgb.load_http(
+data = fgb.load_http(
+    "https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb",
+    bbox=(-26.5699, 63.1191, -12.1087, 67.0137)
+)
+
+print(data)
+# { "type": "FeatureCollection", "features": [...] }
+```
+
+#### `load_http_async()`
+
+**NOTE:** At the moment, `load_http_async()` is not truly asynchronous.
+
+```python
+import flatgeobuf as fgb
+
+# All features
+data = await fgb.load_http_async("https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb")
+
+# ...or features within a bounding box
+data = await fgb.load_http_async(
     "https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb",
     bbox=(-26.5699, 63.1191, -12.1087, 67.0137)
 )
@@ -89,16 +110,39 @@ with open("example.fgb", "rb") as f:
         # { "type": "Feature", "properties": {...}, "geometry": {...} }
 ```
 
-#### `HTTPReader` (Async)
+#### `HTTPReader`
 
 ```python
 import flatgeobuf as fgb
 
 # All features
 reader = fgb.HTTPReader("https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb")
-  async for feature in reader:
-      print(feature)
-      # { "type": "Feature", "properties": {...}, "geometry": {...} }
+for feature in reader:
+    print(feature)
+    # { "type": "Feature", "properties": {...}, "geometry": {...} }
+
+# ...or features within a bounding box
+reader = fgb.HTTPReader(
+    "https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb",
+    bbox=(-26.5699, 63.1191, -12.1087, 67.0137)
+)
+for feature in reader:
+    print(feature)
+    # { "type": "Feature", "properties": {...}, "geometry": {...} }
+```
+
+#### `HTTPReader` (Async)
+
+**NOTE:** At the moment, `HTTPReader` is not truly asynchronous.
+
+```python
+import flatgeobuf as fgb
+
+# All features
+reader = fgb.HTTPReader("https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb")
+async for feature in reader:
+    print(feature)
+    # { "type": "Feature", "properties": {...}, "geometry": {...} }
 
 # ...or features within a bounding box
 reader = fgb.HTTPReader(

@@ -20,7 +20,7 @@ class BufferedHttpRangeClient:
         else:
             raise ValueError("Unknown source")
 
-    async def get_range(
+    async def get_range_async(
         self, start: int, length: int, min_req_length: int, purpose: str
     ) -> bytes:
         self.bytes_ever_used += length
@@ -33,7 +33,27 @@ class BufferedHttpRangeClient:
         length_to_fetch = max(length, min_req_length)
 
         self.bytes_ever_fetched += length_to_fetch
-        self.buffer = await self.http_client.get_range(start, length_to_fetch, purpose)
+        self.buffer = await self.http_client.get_range_async(
+            start, length_to_fetch, purpose
+        )
+        self.head = start
+
+        return self.buffer[:length]
+
+    def get_range(
+        self, start: int, length: int, min_req_length: int, purpose: str
+    ) -> bytes:
+        self.bytes_ever_used += length
+
+        start_i = start - self.head
+        end_i = start_i + length
+        if start_i >= 0 and end_i <= len(self.buffer):
+            return self.buffer[start_i:end_i]
+
+        length_to_fetch = max(length, min_req_length)
+
+        self.bytes_ever_fetched += length_to_fetch
+        self.buffer = self.http_client.get_range(start, length_to_fetch, purpose)
         self.head = start
 
         return self.buffer[:length]
@@ -55,7 +75,23 @@ class HttpRangeClient:
         self.requests_ever_made = 0
         self.bytes_ever_requested = 0
 
-    async def get_range(self, begin: int, length: int, purpose: str) -> bytes:
+    async def get_range_async(self, begin: int, length: int, purpose: str) -> bytes:
+        # TODO: Use aiohttp
+        # raise NotImplementedError()
+        self.requests_ever_made += 1
+        self.bytes_ever_requested += length
+
+        range_header = f"bytes={begin}-{begin + length - 1}"
+        headers = {
+            "Range": range_header,
+        }
+
+        req = urllib.request.Request(self.url, headers=headers)
+        response = urllib.request.urlopen(req)
+
+        return response.read()
+
+    def get_range(self, begin: int, length: int, purpose: str) -> bytes:
         self.requests_ever_made += 1
         self.bytes_ever_requested += length
 

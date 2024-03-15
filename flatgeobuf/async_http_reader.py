@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Any, AsyncGenerator, List, Tuple, Generator
+from typing import Any, AsyncGenerator, List, Tuple
 
 from flatgeobuf.config import Config
 from flatgeobuf.constants import SIZE_PREFIX_LEN, magicbytes
@@ -19,15 +19,15 @@ from flatgeobuf.packedrtree import (
 logger = getLogger(__name__)
 
 
-def merge_promises(
-    promises: List[Generator[Feature, Any, None]]
-) -> Generator[Feature, None, None]:
+async def merge_promises(
+    promises: List[AsyncGenerator[Feature, Any]]
+) -> AsyncGenerator[Feature, None]:
     for promise in promises:
-        for feature in promise:
+        async for feature in promise:
             yield feature
 
 
-class HTTPReader:
+class AsyncHTTPReader:
     def __init__(
         self,
         header_client: BufferedHttpRangeClient,
@@ -43,7 +43,7 @@ class HTTPReader:
     # Fetch the header, preparing the reader to read Feature data.
     # and potentially some opportunistic fetching of the index.
     @staticmethod
-    def open(url: str) -> HTTPReader:
+    async def open(url: str) -> AsyncHTTPReader:
         # In reality, the header is probably less than half this size, but
         # better to overshoot and fetch an extra kb rather than have to issue
         # a second request.
@@ -75,13 +75,13 @@ class HTTPReader:
             f"fetching header. min_req_length: {min_req_length} (assumed_header_length: {assumed_header_length}, assumed_index_length: {assumed_index_length()})",
         )
 
-        bytes = header_client.get_range(0, 8, min_req_length, "header")
+        bytes = await header_client.get_range_async(0, 8, min_req_length, "header")
         if not bytes[:3] == magicbytes[:3]:
             logger.error(f"bytes: {bytes} != {magicbytes}")
             raise ValueError("Not a FlatGeobuf file")
         logger.debug("magic bytes look good")
 
-        bytes = header_client.get_range(8, 4, min_req_length, "header")
+        bytes = await header_client.get_range_async(8, 4, min_req_length, "header")
         header_length = int.from_bytes(bytes, "little")
         HEADER_MAX_BUFFER_SIZE = 1048576 * 10
         if header_length > HEADER_MAX_BUFFER_SIZE or header_length < 8:
@@ -89,7 +89,7 @@ class HTTPReader:
             raise ValueError("Invalid header size")
         logger.debug(f"header_length: {header_length}")
 
-        bytes = header_client.get_range(
+        bytes = await header_client.get_range_async(
             12, header_length, min_req_length, "header"
         )
         bb = bytearray(bytes)  # bb = flatbuffers.ByteBuffer(bytes)
@@ -99,17 +99,17 @@ class HTTPReader:
 
         logger.debug("completed: opening http reader")
 
-        return HTTPReader(header_client, header, header_length, index_length)
+        return AsyncHTTPReader(header_client, header, header_length, index_length)
 
-    def select_bbox(self, rect: Rect) -> Generator[Feature, None, None]:
+    async def select_bbox(self, rect: Rect) -> AsyncGenerator[Feature, None]:
         # Read R-Tree index and build filter for features within bbox
         length_before_tree = self.length_before_tree()
 
         buffered_client = self.header_client
 
-        def read_node(offset_into_tree: int, size: int) -> bytes:
+        async def read_node(offset_into_tree: int, size: int) -> bytes:
             min_req_length = 0
-            return buffered_client.get_range(
+            return await buffered_client.get_range_async(
                 length_before_tree + offset_into_tree,
                 size,
                 min_req_length,
@@ -119,11 +119,11 @@ class HTTPReader:
         batches: List[List[Tuple[int, int]]] = []
         current_batch: List[Tuple[int, int]] = []
 
-        for search_result in PackedRTree(
+        async for search_result in PackedRTree(
             self.header.features_count,
             self.header.index_node_size,
             rect,
-        ).stream_search(read_node):
+        ).stream_search_async(read_node):
             feature_offset, _, feature_length = search_result
             if not feature_length:
                 logger.info("final feature")
@@ -159,13 +159,13 @@ class HTTPReader:
         if current_batch:
             batches.append(current_batch)
 
-        promises: List[Generator[Feature, Any, None]] = [
+        promises: List[AsyncGenerator[Feature, Any]] = [
             self.read_feature_batch(batch) for batch in batches
         ]
 
         # Fetch all batches concurrently, yielding features as they become
         # available, meaning the results may be intermixed.
-        for promise in merge_promises(promises):
+        async for promise in merge_promises(promises):
             yield promise
 
     def length_before_tree(self) -> int:
@@ -178,9 +178,9 @@ class HTTPReader:
     def build_feature_client(self) -> BufferedHttpRangeClient:
         return BufferedHttpRangeClient(self.header_client.http_client)
 
-    def read_feature_batch(
+    async def read_feature_batch(
         self, batch: List[Tuple[int, int]]
-    ) -> Generator[Feature, None, None]:
+    ) -> AsyncGenerator[Feature, None]:
         first_feature_offset = batch[0][0]
         last_feature_offset, last_feature_length = batch[-1]
 
@@ -193,7 +193,7 @@ class HTTPReader:
 
         min_feature_req_length = batch_size
         for feature_offset, _ in batch:
-            yield self.read_feature(
+            yield await self.read_feature(
                 feature_client,
                 feature_offset,
                 min_feature_req_length,
@@ -207,7 +207,7 @@ class HTTPReader:
             min_feature_req_length = 0
         feature_client.log_usage("feature")
 
-    def read_feature(
+    async def read_feature(
         self,
         feature_client: BufferedHttpRangeClient,
         feature_offset: int,
@@ -215,7 +215,7 @@ class HTTPReader:
     ) -> Feature:
         offset = feature_offset + self.length_before_features()
 
-        bytes = feature_client.get_range(
+        bytes = await feature_client.get_range_async(
             offset,
             4,
             min_feature_req_length,
@@ -223,7 +223,7 @@ class HTTPReader:
         )
         feature_length = int.from_bytes(bytes, "little")
 
-        byte_buffer = feature_client.get_range(
+        byte_buffer = await feature_client.get_range_async(
             offset + 4,
             feature_length,
             min_feature_req_length,

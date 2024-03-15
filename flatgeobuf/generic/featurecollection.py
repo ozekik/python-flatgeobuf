@@ -5,11 +5,12 @@ from io import BufferedIOBase
 from logging import getLogger
 from typing import Any, AsyncGenerator, Callable, Generator, Optional, Union
 
+from flatgeobuf.async_http_reader import AsyncHTTPReader
 from flatgeobuf.file_reader import FileReader
 from flatgeobuf.FlatGeobuf.Feature import Feature
 from flatgeobuf.generic.feature import BaseFeature
 from flatgeobuf.header_meta import HeaderMeta
-from flatgeobuf.http_reader import HttpReader
+from flatgeobuf.http_reader import HTTPReader
 from flatgeobuf.packedrtree import Rect
 
 logger = getLogger(__name__)
@@ -131,7 +132,7 @@ async def deserialize_stream(
     #     yield feature
 
 
-async def deserialize_http(
+async def deserialize_http_async(
     url: str,
     rect: Rect | None,
     from_feature: FromFeatureFn,
@@ -139,7 +140,7 @@ async def deserialize_http(
 ) -> AsyncGenerator[Any, None]:
     """Deserialize a FlatGeobuf HTTP resource to a list of BaseFeature."""
 
-    reader = await HttpReader.open(url)
+    reader = await AsyncHTTPReader.open(url)
 
     logger.debug("opened reader")
 
@@ -150,6 +151,28 @@ async def deserialize_http(
         rect = [-float("inf"), -float("inf"), float("inf"), float("inf")]
 
     async for feature in reader.select_bbox(rect):
+        yield from_feature(feature, reader.header)
+
+
+def deserialize_http(
+    url: str,
+    rect: Rect | None,
+    from_feature: FromFeatureFn,
+    header_meta_fn: HeaderMetaFn | None = None,
+) -> Generator[Any, None, None]:
+    """Deserialize a FlatGeobuf HTTP resource to a list of BaseFeature."""
+
+    reader = HTTPReader.open(url)
+
+    logger.debug("opened reader")
+
+    if header_meta_fn:
+        header_meta_fn(reader.header)
+
+    if not rect:
+        rect = [-float("inf"), -float("inf"), float("inf"), float("inf")]
+
+    for feature in reader.select_bbox(rect):
         yield from_feature(feature, reader.header)
 
 
