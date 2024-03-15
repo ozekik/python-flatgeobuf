@@ -178,7 +178,7 @@ pyodide_http.patch_all()
 ```python
 import flatgeobuf as fgb
 
-data = await fgb.load_http(
+data = fgb.load_http(
     "https://raw.githubusercontent.com/flatgeobuf/flatgeobuf/master/test/data/countries.fgb",
     bbox=(-26.5699, 63.1191, -12.1087, 67.0137)
 )
