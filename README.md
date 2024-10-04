@@ -3,6 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/flatgeobuf.svg)](https://pypi.org/project/flatgeobuf/)
 [![build](https://github.com/ozekik/python-flatgeobuf/actions/workflows/ci.yaml/badge.svg)](https://github.com/ozekik/python-flatgeobuf/actions/workflows/ci.yaml)
 [![Coverage Status](https://codecov.io/gh/ozekik/python-flatgeobuf/branch/master/graph/badge.svg)](https://codecov.io/gh/ozekik/python-flatgeobuf)
+[![PyPI downloads](https://img.shields.io/pypi/dm/flatgeobuf.svg)](https://pypistats.org/packages/flatgeobuf)
 
 A Python library for reading [FlatGeobuf](https://flatgeobuf.org/).
 Ported from the official [TypeScript implementation](https://github.com/flatgeobuf/flatgeobuf/tree/master/src/ts).
